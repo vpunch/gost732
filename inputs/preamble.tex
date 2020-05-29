@@ -1,0 +1,190 @@
+\documentclass[a4paper,14pt]{extarticle}
+
+% кодировка
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+
+% поля
+\usepackage[left=30mm,right=15mm,top=20mm,bottom=20mm]{geometry}
+
+% переносы слов
+\usepackage[english,russian]{babel}
+
+% Таймс шрифт
+\usepackage{tempora}
+
+% полуторный межстрочный интервал
+\usepackage{setspace}
+\onehalfspacing
+
+% отступ первой строки
+\usepackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+
+% структурный элемент
+\newcommand{\hidedstructel}[1]{
+    \clearpage
+    \section*{#1}
+}
+
+\newcommand{\structel}[1]{
+    \hidedstructel{#1}
+    \addcontentsline{toc}{section}{#1} 
+} 
+
+\usepackage{titlesec}
+\titleformat{\section}
+    [display]               % форма
+    {\filcenter\bfseries}   % формат всего заголовка
+    {ПРИЛОЖЕНИЕ \thesection}                      % метка
+    {}                      % отступ от метки
+    {}                      % код перед телом
+
+% раздел
+\newcommand{\sect}[1]{
+    \clearpage
+    \setcounter{figure}{0}  % сбросить нумерацию внутри раздела
+    \setcounter{table}{0}
+    \setcounter{listing}{0}
+    \subsection{#1}
+}
+\titleformat{\subsection}{\bfseries}{\thesubsection}{1em}{}
+\titlespacing*{\subsection}
+    {\parindent}    % отступ слева
+    {}              % до
+    {}              % после
+\renewcommand{\thesubsection}{\arabic{subsection}}
+
+\renewcommand{\thesection}{\Asbuk{section}}
+\newcommand{\pril}[1]{
+    \clearpage
+    \section{#1}
+}
+
+% подраздел
+\usepackage{placeins}
+\newcommand{\subsect}[1]{
+    \FloatBarrier
+    \subsubsection{#1}
+}
+\titleformat{\subsubsection}{\bfseries}{\thesubsubsection}{1em}{}
+\titlespacing*{\subsubsection}{\parindent}{}{}
+
+% пункт
+\newcommand{\foo}{
+    \paragraph{hello world!}
+}
+\titleformat{\paragraph}[runin]{}{\theparagraph}{1em}{ }  % для отступа
+\titlespacing*{\paragraph}{\parindent}{}{}
+
+% подпункт
+\newcommand{\subparag}{
+    \subparagraph{}
+}
+\titleformat{\subparagraph}[runin]{}{\thesubparagraph}{1em}{ }
+\titlespacing*{\subparagraph}{\parindent}{}{}
+
+% содержание
+\usepackage{etoc}
+
+% перечисления
+\usepackage{enumitem}
+\setlist{
+    topsep=0,                   % отступ сверху и снизу списка
+    partopsep=0,                % то же самое
+    leftmargin=0,               % отступ слева
+    labelsep=0,                 % отступ метки
+    align=left,                 % выравнивание метки
+    listparindent=\parindent,   % отступ первой строки абзаца
+    itemsep=0,                  % отступ между элементами
+    parsep=0                    % отступ между абзацами и элементами
+}
+\setlist[itemize]{
+    label=--~,  % в списках тире короткое, в тексте - длинное
+    labelwidth=1.2em,
+    itemindent=\parindent+\labelwidth
+}
+\setlist[enumerate]{
+    label=\arabic*),
+    labelwidth=1.4em,
+    itemindent=\parindent+\labelwidth
+}
+ 
+% подписи
+\usepackage[singlelinecheck=false]{caption}
+\DeclareCaptionLabelSeparator{gost}{~---~}
+
+% рисунок
+\newcommand{\fig}[3][1]{
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=#1\textwidth]{#2}
+        \caption{#3}\label{#2}
+    \end{figure}
+}
+\renewcommand{\thefigure}{\thesubsection.\arabic{figure}}
+\DeclareCaptionLabelFormat{gostfigure}{Рисунок #2}
+\captionsetup[figure]{justification=centering, labelformat=gostfigure, position=bottom}
+
+% листинг
+\usepackage[newfloat,cache=false]{minted}
+\newenvironment{codepiece}[2]
+{
+    \VerbatimEnvironment
+    \def\savedcaption{\caption{#2}\label{lst:#1}}
+    \begin{listing}[h]
+    \begin{minted}[
+        frame=single,
+        framesep=10pt,
+        linenos,
+        breaklines,
+        fontsize=\small
+    ]{text}
+}{
+    \end{minted}
+    \savedcaption
+    \end{listing}
+}
+\renewcommand{\thelisting}{\thesubsection.\arabic{listing}}
+
+% код в таблице
+\newenvironment{tabcode}[1]
+{
+    \VerbatimEnvironment
+    \begin{minipage}[t]{#1\textwidth}
+    \begin{minted}[breaklines, fontsize=\small]{text}
+}{
+    \end{minted}
+    \end{minipage}
+}
+
+% математика
+\usepackage{amsmath}
+
+% графики
+\usepackage{tikz, pgfplots}
+\pgfplotsset{compat=newest}
+
+% таблицы
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{tabularx}
+\renewcommand{\thetable}{\thesubsection.\arabic{table}}
+
+\usepackage{adjustbox}
+\usepackage{float}
+
+
+\DeclareCaptionLabelFormat{gosttable}{Таблица #2}
+\DeclareCaptionLabelFormat{custlisting}{Листинг #2}
+
+\captionsetup[table]{justification=raggedright, labelformat=gosttable, position=top}
+\captionsetup[listing]{justification=centering, labelformat=custlisting, position=bottom, skip=-6pt}
+\captionsetup{labelsep=gost}
+
+
+% для отладки
+%\usepackage{showframe}
+%\renewcommand\ShowFrameLinethickness{0.25pt}
+%\renewcommand*\ShowFrameColor{\color{red}}

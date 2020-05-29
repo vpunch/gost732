@@ -1,0 +1,45 @@
+\begingroup
+
+\parindent 0pt
+\newlength{\pagewidth}\setlength{\pagewidth}{1.1em}
+
+\newlength{\sectnum}\setlength{\sectnum}{8.4em}
+\newlength{\ssectnum}\setlength{\ssectnum}{1em}
+\newlength{\sssectnum}\setlength{\sssectnum}{2em}
+
+\newlength{\sssectindent}\setlength{\sssectindent}{2em}
+
+\newcommand*{\entrybody}{%
+    \raggedright%
+    \etocname\nobreak%
+    \leaders\etoctoclineleaders\hfill%
+    \rlap{\makebox[\pagewidth][r]{\etocpage}}%
+    \vspace{0.56em}% хак для отступа
+}
+
+\etocsetstyle{section}
+    {}
+    {\leavevmode\etocifnumbered{\leftskip \sectnum}{}}
+    {\normalsize\etocifnumbered%
+        {\llap{\makebox[\sectnum][l]{ПРИЛОЖЕНИЕ \etocnumber}}%
+            \parbox[t][][t]{\textwidth-\sectnum-\pagewidth}{\entrybody}}%
+        {\parbox[t][][t]{\textwidth-\pagewidth}{\entrybody}}\par}
+    {}
+\etocsetstyle{subsection}
+    {}
+    {\leavevmode\leftskip \ssectnum}
+    {\normalsize\llap{\makebox[\ssectnum][l]{\etocnumber}}%
+        \parbox[t][][t]{\textwidth-\ssectnum-\pagewidth}{\entrybody}\par}
+    {}
+\etocsetstyle{subsubsection}
+    {}
+    {\leavevmode\setlength{\leftskip}{\sssectnum+\sssectindent}\relax}
+    {\normalsize\llap{\makebox[\sssectnum][l]{\etocnumber}}%
+        \parbox[t][][t]{\textwidth-\sssectnum-\pagewidth-\sssectindent}{\entrybody}\par}
+    {}
+
+\etocsettocstyle{\hidedstructel{СОДЕРЖАНИЕ}}{}
+
+\tableofcontents
+
+\endgroup
