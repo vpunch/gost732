@@ -47,8 +47,10 @@
     \setcounter{table}{0}
     \setcounter{listing}{0}
     \subsection{#1}
+
+    \renewcommand{\theparagraph}{\thesubsection.\arabic{paragraph}}
 }
-\titleformat{\subsection}{\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsection}{\filright\bfseries}{}{}{\thesubsection\hspace{1em}}
 \titlespacing*{\subsection}
     {\parindent}    % отступ слева
     {}              % до
@@ -66,13 +68,15 @@
 \newcommand{\subsect}[1]{
     \FloatBarrier
     \subsubsection{#1}
+
+    \renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
 }
-\titleformat{\subsubsection}{\bfseries}{\thesubsubsection}{1em}{}
+\titleformat{\subsubsection}{\filright\bfseries}{}{}{\thesubsubsection\hspace{1em}}
 \titlespacing*{\subsubsection}{\parindent}{}{}
 
 % пункт
-\newcommand{\foo}{
-    \paragraph{hello world!}
+\newcommand{\parag}{
+    \paragraph{}
 }
 \titleformat{\paragraph}[runin]{}{\theparagraph}{1em}{ }  % для отступа
 \titlespacing*{\paragraph}{\parindent}{}{}
@@ -86,6 +90,9 @@
 
 % содержание
 \usepackage{etoc}
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{5}
 
 % перечисления
 \usepackage{enumitem}
@@ -109,12 +116,22 @@
     labelwidth=1.4em,
     itemindent=\parindent+\labelwidth
 }
- 
+%\makeatletter
+%\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+%\makeatother
+\AddEnumerateCounter*{\asbuk}{\c@asbuk}{7}
+\newlist{asblist}{enumerate}{2}
+\setlist[asblist]{
+    label=\asbuk*),
+    labelwidth=1.4em,
+    itemindent=\parindent+\labelwidth
+}
+
 % подписи
 \usepackage[singlelinecheck=false]{caption}
 \DeclareCaptionLabelSeparator{gost}{~---~}
 
-% рисунок
+% иллюстрация
 \newcommand{\fig}[3][1]{
     \begin{figure}[h]
         \centering
@@ -125,38 +142,97 @@
 \renewcommand{\thefigure}{\thesubsection.\arabic{figure}}
 \DeclareCaptionLabelFormat{gostfigure}{Рисунок #2}
 \captionsetup[figure]{justification=centering, labelformat=gostfigure, position=bottom}
+% font=singlespacing по умолчанию
+
+
 
 % листинг
-\usepackage[newfloat,cache=false]{minted}
+\usepackage[newfloat, cache=false]{minted}
+
+\newcommand{\lst}[2]{
+    \begin{listing}[h]
+        \centering
+        \caption{#2}\label{#1}
+        \begin{minipage}[t]{.8\textwidth}
+            \inputminted[
+                fontsize=\small,
+                frame=single,
+                breaklines,
+                linenos
+            ]{text}{#1}
+        \end{minipage}
+    \end{listing}
+}
+\renewcommand{\theFancyVerbLine}{\rmfamily{\small \oldstylenums{\arabic{FancyVerbLine}}}} 
+\DeclareCaptionLabelFormat{custlisting}{Листинг #2}
+\captionsetup[listing]{justification=raggedright, labelformat=custlisting, position=top}
+%skip=-6pt
+\renewcommand{\thelisting}{\thesubsection.\arabic{listing}}
+
 \newenvironment{codepiece}[2]
 {
     \VerbatimEnvironment
-    \def\savedcaption{\caption{#2}\label{lst:#1}}
     \begin{listing}[h]
-    \begin{minted}[
-        frame=single,
-        framesep=10pt,
-        linenos,
-        breaklines,
-        fontsize=\small
-    ]{text}
+        \centering
+        \caption{#2}\label{lst:#1}
+        \begin{minipage}[t]{.8\textwidth}
+            \begin{minted}[
+                fontsize=\small,
+                frame=single,
+                breaklines,
+                linenos
+            ]{text}
 }{
-    \end{minted}
-    \savedcaption
+            \end{minted}
+        \end{minipage}
     \end{listing}
 }
-\renewcommand{\thelisting}{\thesubsection.\arabic{listing}}
 
 % код в таблице
 \newenvironment{tabcode}[1]
 {
     \VerbatimEnvironment
     \begin{minipage}[t]{#1\textwidth}
-    \begin{minted}[breaklines, fontsize=\small]{text}
+    \begin{minted}[fontsize=\small, breaklines]{text}
 }{
     \end{minted}
     \end{minipage}
 }
+
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{tabularx}
+\renewcommand{\thetable}{\thesubsection.\arabic{table}}
+
+% таблица
+\newenvironment{tbl}[3]
+{
+    \begin{table}[h]
+        \small
+        \centering
+        \caption{#2}\label{tbl:#1}
+        \begin{tabular}{|#3|}
+            \hline
+}{
+            \hline
+        \end{tabular}
+    \end{table}
+}
+
+\newenvironment{longtbl}[3]
+{
+    \small
+    \begin{longtable}{|#3|}
+        \caption{#2}\label{tbl:#1}\\
+        \hline
+}{
+        \hline
+    \end{longtable}
+}
+
+%\newcommand{\mr}[2]{\multirow[t]{#1}{=}{#2}}
+
+
 
 % математика
 \usepackage{amsmath}
@@ -167,20 +243,37 @@
 
 % таблицы
 \usepackage{array}
-\usepackage{multirow}
-\usepackage{longtable}
-\usepackage{tabularx}
-\renewcommand{\thetable}{\thesubsection.\arabic{table}}
+
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{N}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\usepackage{xparse}
+\NewExpandableDocumentCommand\thead{t< t> O{1} m m}{% 
+    \IfBooleanTF{#1}{%
+        \IfBooleanTF{#2}{%
+            \multicolumn{#3}{|M{#4}|}{#5}%
+        }{%
+            \multicolumn{#3}{|M{#4}}{#5}%
+        }
+    }{%
+        \IfBooleanTF{#2}{%
+            \multicolumn{#3}{M{#4}|}{#5}%
+        }{%
+            \multicolumn{#3}{M{#4}}{#5}%
+        }%
+    }%
+}
+
+
+
 
 \usepackage{adjustbox}
 \usepackage{float}
 
 
 \DeclareCaptionLabelFormat{gosttable}{Таблица #2}
-\DeclareCaptionLabelFormat{custlisting}{Листинг #2}
 
 \captionsetup[table]{justification=raggedright, labelformat=gosttable, position=top}
-\captionsetup[listing]{justification=centering, labelformat=custlisting, position=bottom, skip=-6pt}
 \captionsetup{labelsep=gost}
 
 
@@ -188,3 +281,7 @@
 %\usepackage{showframe}
 %\renewcommand\ShowFrameLinethickness{0.25pt}
 %\renewcommand*\ShowFrameColor{\color{red}}
+% картинки
+\usepackage{graphicx}
+
+
