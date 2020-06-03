@@ -10,65 +10,71 @@
 % переносы слов
 \usepackage[english,russian]{babel}
 
-% Таймс шрифт
+% шрифт Таймс
 \usepackage{tempora}
+\usepackage{newtxmath}
 
-% полуторный межстрочный интервал
-\usepackage{setspace}
-\onehalfspacing
+% межстрочный интервал
+\usepackage[onehalfspacing]{setspace}
 
 % отступ первой строки
 \usepackage{indentfirst}
 \setlength{\parindent}{1.25cm}
 
-% структурный элемент
-\newcommand{\hidedstructel}[1]{
+% скрытый структурный элемент
+\newcommand{\hidedstructel}[1]{%
     \clearpage
-    \section*{#1}
+    \section*{#1}%
 }
 
-\newcommand{\structel}[1]{
+% структурный элемент
+\newcommand{\structel}[1]{%
     \hidedstructel{#1}
-    \addcontentsline{toc}{section}{#1} 
-} 
+    \addcontentsline{toc}{section}{#1}%
+}
 
+% счетчик приложений
+\usepackage{totcount}
+\newtotcounter{annexcount}
+
+% приложение
+\renewcommand{\thesection}{\Asbuk{section}}
+\newcommand{\annex}[1]{%
+    \stepcounter{annexcount}%
+    \clearpage
+    \section{#1}%
+}
+
+% оформление структурного элемента и приложения
 \usepackage{titlesec}
 \titleformat{\section}
-    [display]               % форма
-    {\filcenter\bfseries}   % формат всего заголовка
-    {ПРИЛОЖЕНИЕ \thesection}                      % метка
-    {}                      % отступ от метки
-    {}                      % код перед телом
+    [display]                   % форма
+    {\filcenter\bfseries}       % формат полностью
+    {ПРИЛОЖЕНИЕ \thesection}    % метка
+    {}                          % отступ от метки
+    {}                          % код перед телом
 
 % раздел
-\newcommand{\sect}[1]{
+\newcommand{\sect}[1]{%
     \clearpage
     \setcounter{figure}{0}  % сбросить нумерацию внутри раздела
     \setcounter{table}{0}
     \setcounter{listing}{0}
     \subsection{#1}
-
-    \renewcommand{\theparagraph}{\thesubsection.\arabic{paragraph}}
+    \renewcommand{\theparagraph}{\thesubsection.\arabic{paragraph}}%
 }
 \titleformat{\subsection}{\filright\bfseries}{}{}{\thesubsection\hspace{1em}}
 \titlespacing*{\subsection}
     {\parindent}    % отступ слева
-    {}              % до
-    {}              % после
+    {}              % сверху
+    {}              % снизу
 \renewcommand{\thesubsection}{\arabic{subsection}}
-
-\renewcommand{\thesection}{\Asbuk{section}}
-\newcommand{\pril}[1]{
-    \clearpage
-    \section{#1}
-}
 
 % подраздел
 \usepackage{placeins}
-\newcommand{\subsect}[1]{
+\newcommand{\subsect}[1]{%
     \FloatBarrier
     \subsubsection{#1}
-
     \renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
 }
 \titleformat{\subsubsection}{\filright\bfseries}{}{}{\thesubsubsection\hspace{1em}}
@@ -90,8 +96,9 @@
 
 % содержание
 \usepackage{etoc}
-
 \setcounter{tocdepth}{3}
+
+% глубина нумерации разделов
 \setcounter{secnumdepth}{5}
 
 % перечисления
@@ -116,9 +123,8 @@
     labelwidth=1.4em,
     itemindent=\parindent+\labelwidth
 }
-%\makeatletter
-%\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
-%\makeatother
+
+% перечисление с буквенными метками
 \AddEnumerateCounter*{\asbuk}{\c@asbuk}{7}
 \newlist{asblist}{enumerate}{2}
 \setlist[asblist]{
@@ -130,6 +136,7 @@
 % подписи
 \usepackage[singlelinecheck=false]{caption}
 \DeclareCaptionLabelSeparator{gost}{~---~}
+\captionsetup{labelsep=gost}
 
 % иллюстрация
 \newcommand{\fig}[3][1]{
@@ -143,12 +150,10 @@
 \DeclareCaptionLabelFormat{gostfigure}{Рисунок #2}
 \captionsetup[figure]{justification=centering, labelformat=gostfigure, position=bottom}
 % font=singlespacing по умолчанию
-
-
+%skip=-6pt
 
 % листинг
 \usepackage[newfloat, cache=false]{minted}
-
 \newcommand{\lst}[2]{
     \begin{listing}[h]
         \centering
@@ -163,12 +168,14 @@
         \end{minipage}
     \end{listing}
 }
-\renewcommand{\theFancyVerbLine}{\rmfamily{\small \oldstylenums{\arabic{FancyVerbLine}}}} 
+\renewcommand{\thelisting}{\thesubsection.\arabic{listing}}
 \DeclareCaptionLabelFormat{custlisting}{Листинг #2}
 \captionsetup[listing]{justification=raggedright, labelformat=custlisting, position=top}
-%skip=-6pt
-\renewcommand{\thelisting}{\thesubsection.\arabic{listing}}
 
+% размер номера строки
+\renewcommand{\theFancyVerbLine}{\rmfamily{\small \oldstylenums{\arabic{FancyVerbLine}}}}
+
+% код в документе
 \newenvironment{codepiece}[2]
 {
     \VerbatimEnvironment
@@ -188,22 +195,6 @@
     \end{listing}
 }
 
-% код в таблице
-\newenvironment{tabcode}[1]
-{
-    \VerbatimEnvironment
-    \begin{minipage}[t]{#1\textwidth}
-    \begin{minted}[fontsize=\small, breaklines]{text}
-}{
-    \end{minted}
-    \end{minipage}
-}
-
-\usepackage{multirow}
-\usepackage{longtable}
-\usepackage{tabularx}
-\renewcommand{\thetable}{\thesubsection.\arabic{table}}
-
 % таблица
 \newenvironment{tbl}[3]
 {
@@ -218,37 +209,24 @@
         \end{tabular}
     \end{table}
 }
+\renewcommand{\thetable}{\thesubsection.\arabic{table}}
+\DeclareCaptionLabelFormat{gosttable}{Таблица #2}
+\captionsetup[table]{justification=raggedright, labelformat=gosttable, position=top}
 
-\newenvironment{longtbl}[3]
-{
-    \small
-    \begin{longtable}{|#3|}
-        \caption{#2}\label{tbl:#1}\\
-        \hline
-}{
-        \hline
-    \end{longtable}
-}
+\usepackage{tabularx}
 
-%\newcommand{\mr}[2]{\multirow[t]{#1}{=}{#2}}
+% объединение строк
+\usepackage{multirow}
+\newcommand{\mr}[2]{\multirow[t]{#1}{=}{#2}}
 
-
-
-% математика
-\usepackage{amsmath}
-
-% графики
-\usepackage{tikz, pgfplots}
-\pgfplotsset{compat=newest}
-
-% таблицы
+% колонки
 \usepackage{array}
-
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{N}[1]{>{\raggedright\arraybackslash}p{#1}}
 
+% заголовок таблицы
 \usepackage{xparse}
-\NewExpandableDocumentCommand\thead{t< t> O{1} m m}{% 
+\NewExpandableDocumentCommand\thead{t< t> O{1} m m}{%
     \IfBooleanTF{#1}{%
         \IfBooleanTF{#2}{%
             \multicolumn{#3}{|M{#4}|}{#5}%
@@ -264,24 +242,90 @@
     }%
 }
 
+% код в таблице
+\newenvironment{tabcode}[1]
+{
+    \VerbatimEnvironment
+    \begin{minipage}[t]{#1\textwidth}
+    \begin{minted}[fontsize=\small, breaklines]{text}
+}{
+    \end{minted}
+    \end{minipage}
+}
 
+% длинная таблица
+\usepackage{longtable}
+\newenvironment{longtbl}[3]
+{
+    \small
+    \begin{longtable}{|#3|}
+        \caption{#2}\label{tbl:#1}\\
+        \hline
+}{
+        \hline
+    \end{longtable}
+}
 
+% математика
+\usepackage{mathtools}  % amsmath
+\numberwithin{equation}{subsection}
+
+% графики
+\usepackage{tikz, pgfplots}
+\pgfplotsset{compat=newest}
 
 \usepackage{adjustbox}
 \usepackage{float}
+\usepackage{url}
 
+% источники
+\usepackage[%
+    backend=biber,%
+    bibstyle=gost-numeric%
+]{biblatex}
+\addbibresource{bibliography.bib}
+\newcommand{\showbib}{%
+    \structel{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}%
+    \printbibliography[heading=none]%
+}
 
-\DeclareCaptionLabelFormat{gosttable}{Таблица #2}
+% отступы в источниках
+\defbibenvironment{bibliography}
+    {\list
+        {}
+        {\setlength{\leftmargin}{0}%
+         \setlength{\itemindent}{\parindent}%
+         \setlength{\itemsep}{0}%
+         \setlength{\parsep}{0}}}
+    {\endlist}
+    {\item
+     \printtext[labelnumberwidth]{%
+        \printfield{labelprefix}%
+        \printfield{labelnumber}%
+     }%
+     \hspace{0.5em}}
 
-\captionsetup[table]{justification=raggedright, labelformat=gosttable, position=top}
-\captionsetup{labelsep=gost}
+% метка без точки
+\DeclareFieldFormat{labelnumberwidth}{#1}
 
+% номер последней страницы
+\usepackage{lastpage}
+
+% счетчик источников
+\newtotcounter{bibcount}
+\AtEveryBibitem{
+    \stepcounter{bibcount}%
+}
+
+% счетчики таблиц и рисунков
+\usepackage{xassoccnt}
+\newtotcounter{tblcount}
+\DeclareAssociatedCounters{table}{tblcount}
+\newtotcounter{figcount}
+\DeclareAssociatedCounters{figure}{figcount}
 
 % для отладки
 %\usepackage{showframe}
 %\renewcommand\ShowFrameLinethickness{0.25pt}
 %\renewcommand*\ShowFrameColor{\color{red}}
-% картинки
-\usepackage{graphicx}
-
-
+%\usepackage{graphicx}
